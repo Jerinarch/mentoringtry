@@ -48,7 +48,7 @@
     window.addEventListener('load', () => {
       const token = localStorage.getItem('token');
       if (token) {
-        window.location.href = 'mentoringhomepage.html';
+        window.location.href = 'index.html';
       }
     });
 
@@ -78,7 +78,7 @@
           localStorage.setItem('user', JSON.stringify(data.user));
           
           alert("Signed in successfully!");
-          window.location.href = "mentoringhomepage.html";
+          window.location.href = "index.html";
         } else {
           alert(data.message || "Login failed. Please check your credentials.");
         }
