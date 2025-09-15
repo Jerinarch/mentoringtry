@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Christ Mentoring - Login</title>
+  <link rel="stylesheet" href="stylelogin.css">
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="logo">CU <span>ChristMentoring</span></div>
+    <nav>
+      <button class="nav-btn" onclick="navigate('about')">About</button>
+      <button class="nav-btn active" onclick="navigate('login')">Sign In</button>
+    </nav>
+  </header>
+
+  <div class="main">
+    <div class="logo-image">
+      <img src="Christuniversitylogo.jpg" alt="Christ University Logo">
+    </div>
+
+    <div class="form-container">
+      <h2>Sign in to your account</h2>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="Enter your email">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password">
+      </div>
+      <div class="forgot">
+        <a href="#">Forgot Password?</a>
+      </div>
+
+      <button type="button" onclick="signIn()">Sign In</button>
+
+      <div class="register">
+        Don't have an account? <a href="#" onclick="navigate('register')">Register</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Check if user is already logged in
+    window.addEventListener('load', () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        window.location.href = 'mentoringhomepage.html';
+      }
+    });
+
+    async function signIn() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      if (!email || !password) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Store token and user data
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          
+          alert("Signed in successfully!");
+          window.location.href = "mentoringhomepage.html";
+        } else {
+          alert(data.message || "Login failed. Please check your credentials.");
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        alert("Login failed. Please try again.");
+      }
+    }
+
+    function navigate(page) {
+      const routes = {
+        about: "about.html",
+        login: "mentoringlogin.html",
+        register: "mentoringregister.html"
+      };
+      if (routes[page]) {
+        window.location.href = routes[page];
+      }
+    }
+  </script>
+
+</body>
+</html>
