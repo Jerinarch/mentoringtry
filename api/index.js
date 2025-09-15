@@ -18,9 +18,19 @@ app.use(bodyParser.urlencoded({ extended: true }));
 let isConnected = false;
 async function connectToDatabase() {
   if (isConnected) return;
+
+  console.log('Attempting MongoDB connection (serverless)...');
+  console.log('MongoDB URI present:', Boolean(config.MONGODB_URI));
+
+  mongoose.connection.on('error', (err) => console.error('Mongoose error:', err));
+  mongoose.connection.on('connected', () => console.log('Mongoose connected'));
+  mongoose.connection.on('disconnected', () => console.warn('Mongoose disconnected'));
+
   await mongoose.connect(config.MONGODB_URI, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 10000,
+    socketTimeoutMS: 20000,
   });
   isConnected = true;
 }

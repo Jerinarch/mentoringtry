@@ -22,13 +22,27 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Serve static files (HTML, CSS, JS)
 app.use(express.static(__dirname));
 
-// MongoDB connection
+// MongoDB connection with diagnostics
+console.log('Attempting MongoDB connection...');
+console.log('MongoDB URI present:', Boolean(config.MONGODB_URI));
+
+mongoose.connection.on('connecting', () => console.log('Mongoose: connecting...'));
+mongoose.connection.on('connected', () => console.log('Mongoose: connected'));
+mongoose.connection.on('error', (err) => console.error('Mongoose: connection error', err));
+mongoose.connection.on('disconnected', () => console.warn('Mongoose: disconnected'));
+
 mongoose.connect(config.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 10000,
+  socketTimeoutMS: 20000,
 })
 .then(() => console.log('Connected to MongoDB'))
-.catch(err => console.error('MongoDB connection error:', err));
+.catch(err => {
+  console.error('MongoDB connection error:', err.message);
+  // Exit on startup failure in production to trigger restart
+  if (process.env.NODE_ENV === 'production') process.exit(1);
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
